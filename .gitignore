@@ -1,0 +1,49 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+
+# --- SensusVault Specific (Data & Privacy) ---
+# Diese Ordner enthalten deine privaten Daten und werden NIEMALS hochgeladen.
+data/
+vault/
+inbox/
+chroma_data/
+*.sqlite
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# --- Environment & Secrets ---
+# Hier landen deine API-Keys, Ports und lokalen Pfade.
+.env
+.env.local
+.env.*.local
+secrets.json
+*.pem
+*.key
+
+# --- IDE & Editor ---
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*.code-workspace
+
+# --- Docker & Logs ---
+.docker/
+*.log
+logs/
+.cache/
+
+# --- OS Files ---
+Thumbs.db
+desktop.ini

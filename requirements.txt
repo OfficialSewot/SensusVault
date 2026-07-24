@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+chromadb
+langchain
+langgraph
+pydantic
+python-multipart
+pymupdf
+pytesseract
+networkx
+sqlalchemy

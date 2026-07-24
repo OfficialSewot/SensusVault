@@ -1,0 +1,34 @@
+services:
+  chroma:
+    image: chromadb/chroma
+    container_name: sensus_chroma
+    ports:
+      - "${CHROMA_PORT}:8000"
+    volumes:
+      - ./chroma_data:/chroma/data
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    restart: always
+
+  app:
+    build: .
+    container_name: sensus_app
+    ports:
+      - "${APP_PORT}:8080"
+    volumes:
+      - .:/app
+    environment:
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - LLAMA_SERVER_URL=${LLAMA_SERVER_URL}
+      - VAULT_PATH=${VAULT_PATH}
+      - INBOX_PATH=${INBOX_PATH}
+      - CHROMA_COLLECTION_NAME=${CHROMA_COLLECTION_NAME}
+      - ENABLE_HITL=${ENABLE_HITL}
+      - GRAPH_DB_PATH=${GRAPH_DB_PATH}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - chroma
+    restart: always
