@@ -9,3 +9,5 @@ pymupdf
 pytesseract
 networkx
 sqlalchemy
+gliner
+sentence-transformers

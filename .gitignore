@@ -20,6 +20,7 @@ chroma_data/
 *.db-journal
 *.db-shm
 *.db-wal
+test_chroma/
 
 # --- Environment & Secrets ---
 # Hier landen deine API-Keys, Ports und lokalen Pfade.
