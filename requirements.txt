@@ -11,3 +11,4 @@ networkx
 sqlalchemy
 gliner
 sentence-transformers
+langchain-openai

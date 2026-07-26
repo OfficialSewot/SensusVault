@@ -19,6 +19,13 @@ class QueryRequest(BaseModel):
     top_k: Optional[int] = 5
     walk_depth: Optional[int] = 1
 
+class ActionResponse(BaseModel):
+    id: str
+    type: str
+    payload: dict
+    status: str
+    created_at: str
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
@@ -55,6 +62,46 @@ async def query(request: QueryRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/actions", response_model=List[ActionResponse])
+def list_actions():
+    """
+    Lists all pending actions from the queue.
+    """
+    actions = db_manager.get_pending_actions()
+    return [
+        ActionResponse(
+            id=str(a.id),
+            type=a.type,
+            payload=a.payload,
+            status=a.status,
+            created_at=a.created_at.isoformat()
+        ) for a in actions
+    ]
+
+@app.post("/actions/{action_id}/approve")
+def approve_action(action_id: str):
+    """
+    Approves a pending action.
+    """
+    db_manager.update_action_status(UUID(action_id), "approved")
+    return {"message": f"Action {action_id} approved"}
+
+@app.post("/actions/{action_id}/reject")
+def reject_action(action_id: str):
+    """
+    Rejects a pending action.
+    """
+    db_manager.update_action_status(UUID(action_id), "rejected")
+    return {"message": f"Action {action_id} rejected"}
+
+@app.post("/actions/{action_id}/execute")
+def execute_action(action_id: str):
+    """
+    Executes an approved action.
+    """
+    db_manager.execute_action(UUID(action_id))
+    return {"message": f"Action {action_id} executed"}
 
 if __name__ == "__main__":
     import uvicorn

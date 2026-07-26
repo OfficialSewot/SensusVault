@@ -62,6 +62,89 @@ class DatabaseManager:
         finally:
             conn.close()
 
+    def add_action(self, action: Action):
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO pending_actions (id, type, payload, status, created_at) VALUES (?, ?, ?, ?, ?)",
+                    (str(action.id), action.type, json.dumps(action.payload), action.status, action.created_at.isoformat())
+                )
+        finally:
+            conn.close()
+
+    def get_pending_actions(self) -> List[Action]:
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        actions = []
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, type, payload, status, created_at FROM pending_actions WHERE status = 'pending'")
+            rows = cursor.fetchall()
+            for row in rows:
+                actions.append(Action(
+                    id=UUID(row[0]),
+                    type=row[1],
+                    payload=json.loads(row[2]),
+                    status=row[3],
+                    created_at=datetime.fromisoformat(row[4])
+                ))
+        finally:
+            conn.close()
+        return actions
+
+    def update_action_status(self, action_id: UUID, status: str):
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute("UPDATE pending_actions SET status = ? WHERE id = ?", (status, str(action_id)))
+        finally:
+            conn.close()
+
+    def execute_action(self, action_id: UUID):
+        """
+        Executes an approved action and updates its status.
+        """
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT type, payload FROM pending_actions WHERE id = ?", (str(action_id),))
+            row = cursor.fetchone()
+            if not row:
+                return
+            
+            action_type, payload_json = row
+            payload = json.loads(payload_json)
+            
+            if action_type == "create_note":
+                note = Note(
+                    content=payload["content"],
+                    metadata=Metadata(
+                        title=payload["title"],
+                        source=payload["source"],
+                        tags=payload.get("tags", [])
+                    )
+                )
+                self.insert_note(note)
+            elif action_type == "delete_note":
+                self.delete_note(UUID(payload["note_id"]))
+            elif action_type == "update_metadata":
+                note_id = UUID(payload["note_id"])
+                self.update_note_metadata(note_id, Metadata(**payload["metadata"]))
+            elif action_type == "generate_graph_link":
+                self.add_edge(
+                    UUID(payload["source_id"]),
+                    UUID(payload["target_id"]),
+                    payload["relation"]
+                )
+            
+            # Mark as completed
+            with conn:
+                cursor.execute("UPDATE pending_actions SET status = 'completed' WHERE id = ?", (str(action_id),))
+        finally:
+            conn.close()
+
     def delete_note(self, note_id: UUID):
         # Delete from ChromaDB
         self.collection.delete(ids=[str(note_id)])
@@ -176,6 +259,18 @@ class DatabaseManager:
         finally:
             conn.close()
         return None
+
+    def update_note_metadata(self, note_id: UUID, new_metadata: Metadata):
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "UPDATE notes SET metadata = ? WHERE id = ?",
+                    (new_metadata.model_dump_json(), str(note_id))
+                )
+        finally:
+            conn.close()
 
     def search_semantic(self, query_embedding: List[float], top_k: int = 5) -> List[str]:
         """Search for top_k most similar notes."""
