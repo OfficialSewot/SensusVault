@@ -5,14 +5,14 @@ from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
 from src.agent.tools import AgentTools
 from src.database.manager import DatabaseManager
-from langchain_openai import ChatOpenAI
+from src.llm.factory import LLMFactory
 import json
 
 class AgentState(TypedDict):
     messages: Annotated[List[BaseMessage], "The messages in the conversation"]
 
 class KnowledgeAgent:
-    def __init__(self, db_manager: DatabaseManager, model_name: str = "gpt-4o"):
+    def __init__(self, db_manager: DatabaseManager):
         self.db_manager = db_manager
         self.tools = AgentTools(db_manager)
         
@@ -38,11 +38,16 @@ class KnowledgeAgent:
                 name="generate_graph_link",
                 description="Proposes a new link between two notes in the knowledge graph."
             ),
+            StructuredTool.from_function(
+                func=self.tools.summarize_note,
+                name="summarize_note",
+                description="Proposes a summary for a note. Requires note_id."
+            ),
         ]
         
-        # Initialize LLM - using ChatOpenAI as a placeholder, can be swapped for local llama-swap
-        self.llm = ChatOpenAI(model=model_name, temperature=0)
-        self.llm_with_tools = self.llm.bind_tools(self.langchain_tools)
+        # Use the Factory to get the provider
+        self.provider = LLMFactory.get_provider()
+        self.llm_with_tools = self.provider.bind_tools(self.langchain_tools)
 
         # Build the graph
         builder = StateGraph(AgentState)
