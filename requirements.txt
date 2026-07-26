@@ -12,3 +12,4 @@ sqlalchemy
 gliner
 sentence-transformers
 langchain-openai
+langchain-anthropic
