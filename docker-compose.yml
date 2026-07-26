@@ -3,10 +3,11 @@ services:
     image: chromadb/chroma
     container_name: sensus_chroma
     ports:
-      - "${CHROMA_PORT}:8000"
+      - "${CHROMA_PORT}:${CHROMA_PORT}"
     volumes:
       - ./chroma_data:/chroma/data
     environment:
+      - PORT=${CHROMA_PORT}
       - IS_PERSISTENT=TRUE
       - ANONYMIZED_TELEMETRY=FALSE
     restart: always
@@ -15,12 +16,13 @@ services:
     build: .
     container_name: sensus_app
     ports:
-      - "${APP_PORT}:8080"
+      - "${APP_PORT}:${APP_PORT}"
     volumes:
       - .:/app
     environment:
+      - APP_PORT=${APP_PORT}
       - CHROMA_HOST=chroma
-      - CHROMA_PORT=8000
+      - CHROMA_PORT=${CHROMA_PORT}
       - LLAMA_SERVER_URL=${LLAMA_SERVER_URL}
       - VAULT_PATH=${VAULT_PATH}
       - INBOX_PATH=${INBOX_PATH}
@@ -31,4 +33,30 @@ services:
       - "host.docker.internal:host-gateway"
     depends_on:
       - chroma
+    restart: always
+
+  ui:
+    build: .
+    container_name: sensus_ui
+    ports:
+      - "${UI_PORT}:${UI_PORT}"
+    volumes:
+      - .:/app
+    environment:
+      - APP_PORT=${APP_PORT}
+      - UI_PORT=${UI_PORT}
+      - API_BASE_URL=http://app:${APP_PORT}
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=${CHROMA_PORT}
+      - LLAMA_SERVER_URL=${LLAMA_SERVER_URL}
+      - VAULT_PATH=${VAULT_PATH}
+      - INBOX_PATH=${INBOX_PATH}
+      - CHROMA_COLLECTION_NAME=${CHROMA_COLLECTION_NAME}
+      - ENABLE_HITL=${ENABLE_HITL}
+      - GRAPH_DB_PATH=${GRAPH_DB_PATH}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - chroma
+    command: streamlit run src/ui/app.py --server.port ${UI_PORT} --server.address 0.0.0.0
     restart: always

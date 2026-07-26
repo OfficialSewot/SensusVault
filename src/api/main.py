@@ -103,6 +103,64 @@ def execute_action(action_id: str):
     db_manager.execute_action(action_id)
     return {"message": f"Action {action_id} executed"}
 
+@app.post("/notes")
+async def create_note(data: dict):
+    """
+    Endpoint to create a new note in the database.
+    """
+    try:
+        from src.models.models import Note, Metadata
+        note = Note(
+            content=data["content"],
+            metadata=Metadata(
+                title=data["title"],
+                source=data["source"],
+                tags=data.get("tags", [])
+            )
+        )
+        db_manager.insert_note(note)
+        return {"message": "Note created successfully", "id": str(note.id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/notes")
+async def list_notes():
+    """
+    Endpoint to list all notes.
+    """
+    try:
+        notes = db_manager.list_notes()
+        return [
+            {
+                "id": str(note.id),
+                "content": note.content,
+                "metadata": note.metadata.model_dump()
+            }
+            for note in notes
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/notes/{note_id}")
+async def get_note(note_id: str):
+    """
+    Endpoint to retrieve a note by its ID.
+    """
+    try:
+        from uuid import UUID
+        note = db_manager.get_note(UUID(note_id))
+        if not note:
+            raise HTTPException(status_code=404, detail="Note not found")
+        return {
+            "id": str(note.id),
+            "content": note.content,
+            "metadata": note.metadata.model_dump()
+        }
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

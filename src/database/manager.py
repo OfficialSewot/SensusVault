@@ -165,13 +165,16 @@ class DatabaseManager:
             conn.close()
 
     def insert_note(self, note: Note):
+        # Generate dummy embedding if none provided for searchability
+        if not note.embedding:
+            note.embedding = [0.1] * 1536
+
         # Insert into ChromaDB
-        if note.embedding:
-            self.collection.add(
-                ids=[str(note.id)],
-                embeddings=[note.embedding],
-                metadatas=[{"title": note.metadata.title, "source": note.metadata.source}]
-            )
+        self.collection.add(
+            ids=[str(note.id)],
+            embeddings=[note.embedding],
+            metadatas=[{"title": note.metadata.title, "source": note.metadata.source}]
+        )
 
         # Insert into SQLite
         conn = sqlite3.connect(self.db_path, timeout=30)
@@ -260,6 +263,21 @@ class DatabaseManager:
         finally:
             conn.close()
         return None
+
+    def list_notes(self) -> List[Note]:
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        notes = []
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT id, content, metadata FROM notes")
+                rows = cursor.fetchall()
+                for row in rows:
+                    metadata = Metadata.parse_raw(row[2])
+                    notes.append(Note(id=UUID(row[0]), content=row[1], metadata=metadata))
+        finally:
+            conn.close()
+        return notes
 
     def update_note_metadata(self, note_id: UUID, new_metadata: Metadata):
         conn = sqlite3.connect(self.db_path, timeout=30)

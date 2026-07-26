@@ -4,7 +4,9 @@ import pandas as pd
 from typing import List
 
 # Configuration
-API_BASE_URL = "http://localhost:8000"
+# Use the environment variable for API_BASE_URL, defaulting to localhost:2200
+import os
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:2200")
 
 st.set_page_config(
     page_title="SensusVault - Second Brain",
