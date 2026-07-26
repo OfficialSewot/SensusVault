@@ -2,6 +2,8 @@
 
 SensusVault is a local-first, private knowledge management system designed to function as a "Second Brain" for individuals and a high-context Knowledge Base for local Large Language Models (LLMs).
 
+⚠️ Work in Progress / Early Alpha — Not ready for production use.
+
 ## 🚀 Key Features
 
 - **100% Local & Private:** No data ever leaves your machine. All processing, storage, and LLM inference happen locally.
@@ -35,6 +37,12 @@ SensusVault is a local-first, private knowledge management system designed to fu
 - **API Framework:** FastAPI
 - **UI Framework:** Streamlit
 - **LLM Inference:** `llama-swap` (llama.cpp)
+
+## 🧪 Development
+
+SensusVault started as a playground for me to learn and build a flexible tool using AI assistance. It’s all about shipping practical features quickly. 
+
+Feel free to drop a PR or start a discussion! Just keep in mind it’s a side project, so I’ll check in whenever time permits.
 
 ## 🚦 Getting Started
 
