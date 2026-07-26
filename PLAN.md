@@ -67,14 +67,15 @@ The system is divided into decoupled modules to allow for "Context-Limited Vibe 
 - [x] **Evaluation:** Implement a "Golden Set" of 50 questions to measure Hit Rate (Retrieval accuracy).
 
 ### Phase 3: The Secretary (Autonomy & HITL)
-- [ ] Build the `Knowledge Agent` using LangGraph.
-- [ ] Implement the `Action Queue` and `HITL` logic.
-- [ ] Integrate "Self-Organization" (Agent suggests links based on Graph-proximity).
+- [x] Build the `Knowledge Agent` using LangGraph.
+- [x] Implement the `Action Queue` and `HITL` logic.
+- [x] Integrate "Self-Organization" (Agent suggests links based on Graph-proximity).
 
 ### Phase 4: The Face (UI & Integration)
 - [ ] Build the Streamlit Web UI with "Action Review" queue.
 - [ ] Create the OpenWebUI Tool definition (JSON/Python).
 - [ ] Final Polish & Documentation for GitHub.
+- [ ] Deployment & User Testing.
 
 ## 5. Development Principles
 - **Atomic Modules:** Each script must do one thing.

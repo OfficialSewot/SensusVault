@@ -13,3 +13,6 @@ gliner
 sentence-transformers
 langchain-openai
 langchain-anthropic
+streamlit
+requests
+pandas
