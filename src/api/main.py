@@ -84,7 +84,7 @@ def approve_action(action_id: str):
     """
     Approves a pending action.
     """
-    db_manager.update_action_status(UUID(action_id), "approved")
+    db_manager.update_action_status(action_id, "approved")
     return {"message": f"Action {action_id} approved"}
 
 @app.post("/actions/{action_id}/reject")
@@ -92,7 +92,7 @@ def reject_action(action_id: str):
     """
     Rejects a pending action.
     """
-    db_manager.update_action_status(UUID(action_id), "rejected")
+    db_manager.update_action_status(action_id, "rejected")
     return {"message": f"Action {action_id} rejected"}
 
 @app.post("/actions/{action_id}/execute")
@@ -100,7 +100,7 @@ def execute_action(action_id: str):
     """
     Executes an approved action.
     """
-    db_manager.execute_action(UUID(action_id))
+    db_manager.execute_action(action_id)
     return {"message": f"Action {action_id} executed"}
 
 if __name__ == "__main__":

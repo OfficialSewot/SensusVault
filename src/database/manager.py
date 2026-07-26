@@ -3,7 +3,8 @@ import json
 import chromadb
 from uuid import UUID
 from typing import List, Optional, Dict, Any
-from src.models.models import Metadata, Note
+from datetime import datetime
+from src.models.models import Metadata, Note, Action
 
 class DatabaseManager:
     def __init__(self, db_path: str = "vault.db", chroma_path: str = "chroma_data"):
@@ -62,7 +63,7 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def add_action(self, action: Action):
+    def add_action(self, action: Any):
         conn = sqlite3.connect(self.db_path, timeout=30)
         try:
             with conn:
@@ -74,7 +75,7 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def get_pending_actions(self) -> List[Action]:
+    def get_pending_actions(self) -> List[Any]:
         conn = sqlite3.connect(self.db_path, timeout=30)
         actions = []
         try:
@@ -82,18 +83,18 @@ class DatabaseManager:
             cursor.execute("SELECT id, type, payload, status, created_at FROM pending_actions WHERE status = 'pending'")
             rows = cursor.fetchall()
             for row in rows:
-                actions.append(Action(
-                    id=UUID(row[0]),
-                    type=row[1],
-                    payload=json.loads(row[2]),
-                    status=row[3],
-                    created_at=datetime.fromisoformat(row[4])
-                ))
+                actions.append({
+                    "id": row[0],
+                    "type": row[1],
+                    "payload": json.loads(row[2]),
+                    "status": row[3],
+                    "created_at": datetime.fromisoformat(row[4])
+                })
         finally:
             conn.close()
         return actions
 
-    def update_action_status(self, action_id: UUID, status: str):
+    def update_action_status(self, action_id: str, status: str):
         conn = sqlite3.connect(self.db_path, timeout=30)
         try:
             with conn:
@@ -102,7 +103,7 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def execute_action(self, action_id: UUID):
+    def execute_action(self, action_id: str):
         """
         Executes an approved action and updates its status.
         """

@@ -4,6 +4,8 @@ from langchain_core.runnables import Runnable
 from langchain_openai import ChatOpenAI
 import os
 
+from .provider import LLMProvider
+
 class OpenRouterProvider(LLMProvider):
     def __init__(self, model: str, api_key: str, base_url: str = "https://openrouter.ai/api/v1"):
         self.model = model

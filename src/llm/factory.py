@@ -1,9 +1,10 @@
 import os
-from typing import Optional
+from typing import Optional, Any
 from src.llm.provider import LLMProvider
 from src.llm.openrouter import OpenRouterProvider
 from src.llm.anthropic import AnthropicProvider
 from src.llm.local import LlamaSwapProvider
+from src.llm.provider import OpenAIProvider
 from langchain_openai import ChatOpenAI
 
 class LLMFactory:
@@ -37,7 +38,7 @@ class LLMFactory:
             raise ValueError(f"Unsupported LLM_PROVIDER: {provider_type}")
 
     @staticmethod
-    def get_runnable() -> Runnable:
+    def get_runnable() -> Any:
         provider = LLMFactory.get_provider()
         # We will call bind_tools on the provider's underlying model
         # Note: This requires the agent to pass tools to the factory
