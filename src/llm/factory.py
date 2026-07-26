@@ -15,7 +15,7 @@ class LLMFactory:
         if provider_type == "openai":
             return OpenAIProvider(
                 model=os.getenv("LLM_MODEL", "gpt-4o"),
-                api_key=os.getenv("OPENAI_API_KEY"),
+                api_key=os.getenv("LLM_API_KEY"),
                 base_url=os.getenv("OPENAI_BASE_URL")
             )
         elif provider_type == "openrouter":

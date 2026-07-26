@@ -45,7 +45,7 @@ class Tools:
             
             # This is a placeholder for actual embedding logic:
             # embedding = embedding_model.encode(query)
-            dummy_embedding = [0.1] * 1536
+            dummy_embedding = [0.1] * 384
             
             response = requests.post(
                 f"{self.api_base_url}/query",

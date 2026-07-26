@@ -1,4 +1,15 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="SensusVault API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 from pydantic import BaseModel
 from typing import List, Optional
 import uuid
@@ -40,7 +51,7 @@ async def query(request: QueryRequest):
     try:
         # Placeholder: In production, replace with actual embedding generation
         # e.g., embedding = embedding_model.encode(request.query_text)
-        dummy_embedding = [0.1] * 1536 
+        dummy_embedding = [0.1] * 384
         
         results = query_engine.graph_aware_query(
             query_embedding=dummy_embedding,

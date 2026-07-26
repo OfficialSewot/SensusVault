@@ -24,5 +24,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Startbefehl
-ENV APP_PORT=8080
+ENV APP_PORT=2200
 CMD ["sh", "-c", "python -m uvicorn src.api.main:app --host 0.0.0.0 --port ${APP_PORT}"]
