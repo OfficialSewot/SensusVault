@@ -16,3 +16,4 @@ langchain-anthropic
 streamlit
 requests
 pandas
+streamlit-agraph

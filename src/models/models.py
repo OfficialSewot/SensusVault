@@ -9,6 +9,8 @@ class Metadata(BaseModel):
     date_created: datetime = Field(default_factory=datetime.now)
     source: str
     content_summary: Optional[str] = None
+    status: str = "raw"
+    project_id: Optional[UUID] = None
 
 class Note(BaseModel):
     id: UUID = Field(default_factory=uuid4)

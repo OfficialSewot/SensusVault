@@ -30,7 +30,9 @@ class DatabaseManager:
                         id TEXT PRIMARY KEY,
                         content TEXT,
                         metadata TEXT,
-                        embedding BLOB
+                        embedding BLOB,
+                        status TEXT,
+                        project_id TEXT
                     )
                 """)
                 # Graph Nodes
@@ -57,7 +59,19 @@ class DatabaseManager:
                         type TEXT,
                         payload TEXT,
                         status TEXT,
-                        created_at TIMESTAMP
+                        created_at TIMESTAMP,
+                        user_feedback TEXT
+                    )
+                """)
+
+                # Action History
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS action_history (
+                        id TEXT PRIMARY KEY,
+                        action_id TEXT,
+                        status TEXT,
+                        executed_at TIMESTAMP,
+                        details TEXT
                     )
                 """)
         finally:
@@ -167,7 +181,7 @@ class DatabaseManager:
     def insert_note(self, note: Note):
         # Generate dummy embedding if none provided for searchability
         if not note.embedding:
-            note.embedding = [0.1] * 1536
+            note.embedding = [0.1] * 384
 
         # Insert into ChromaDB
         self.collection.add(
@@ -224,17 +238,6 @@ class DatabaseManager:
                 )
                 return str(node_id)
 
-        cursor.execute("SELECT id FROM nodes WHERE id = ?", (str(node_id),))
-        row = cursor.fetchone()
-        if row:
-            return row[0]
-        else:
-            cursor.execute(
-                "INSERT INTO nodes (id, type, metadata) VALUES (?, ?, ?)",
-                (str(node_id), node_type, metadata_json)
-            )
-            return str(node_id)
-
     def add_edge(self, source_id: UUID, target_id: UUID, relation: str):
         conn = sqlite3.connect(self.db_path, timeout=30)
         try:
@@ -278,6 +281,42 @@ class DatabaseManager:
         finally:
             conn.close()
         return notes
+
+    def get_all_nodes(self) -> List[Dict[str, Any]]:
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        nodes = []
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT id, type, metadata FROM nodes")
+                rows = cursor.fetchall()
+                for row in rows:
+                    nodes.append({
+                        "id": row[0],
+                        "type": row[1],
+                        "metadata": json.loads(row[2])
+                    })
+        finally:
+            conn.close()
+        return nodes
+
+    def get_all_edges(self) -> List[Dict[str, Any]]:
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        edges = []
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT source_id, target_id, relation_type FROM edges")
+                rows = cursor.fetchall()
+                for row in rows:
+                    edges.append({
+                        "source": row[0],
+                        "target": row[1],
+                        "relation": row[2]
+                    })
+        finally:
+            conn.close()
+        return edges
 
     def update_note_metadata(self, note_id: UUID, new_metadata: Metadata):
         conn = sqlite3.connect(self.db_path, timeout=30)

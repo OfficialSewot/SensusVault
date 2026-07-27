@@ -66,10 +66,10 @@ Every note MUST possess:
 ## 5. Implementation Roadmap
 
 ### Phase 1: The Ingestion Foundation (Short-term)
-- [ ] Implement `status` and `project_id` in the database schema.
-- [ ] Build the "Quick Capture" UI component.
-- [ ] Connect the `pre_processor` to an automated "Processing" trigger.
-- [ ] Refactor `app.py` to handle "Raw" vs "Processed" states.
+- [x] Implement `status` and `project_id` in the database schema.
+- [x] Build the "Quick Capture" UI component.
+- [x] Connect the `pre_processor` to an automated "Processing" trigger.
+- [x] Refactor `app.py` to handle "Raw" vs "Processed" states.
 
 ### Phase 2: Advanced Organization (Medium-term)
 - [ ] Implement Project and Research SubViews in the UI.

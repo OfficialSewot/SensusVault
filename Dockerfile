@@ -26,3 +26,5 @@ COPY . .
 # Startbefehl
 ENV APP_PORT=2200
 CMD ["sh", "-c", "python -m uvicorn src.api.main:app --host 0.0.0.0 --port ${APP_PORT}"]
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=UTF-8

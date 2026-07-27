@@ -7,7 +7,7 @@ from src.pre_processor.processor import PreProcessor
 from src.pre_processor.metadata_extractor import MetadataExtractor
 from src.pre_processor.ner import EntityExtractor
 from src.database.manager import DatabaseManager
-from sentence_transformers import SentenceTransformer
+from src.embeddings.manager import EmbeddingManager
 
 class Ingestor:
     def __init__(self, db_manager: DatabaseManager):
@@ -15,7 +15,7 @@ class Ingestor:
         self.pre_processor = PreProcessor()
         self.metadata_extractor = MetadataExtractor()
         self.entity_extractor = EntityExtractor()
-        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.embedding_manager = EmbeddingManager()
 
     def ingest_file(self, file_path: str) -> Optional[uuid.UUID]:
         """
@@ -48,7 +48,7 @@ class Ingestor:
 
         # 4. Create Note object
         # Generate embedding for the content
-        embedding = self.embedding_model.encode(content).tolist()
+        embedding = self.embedding_manager.encode(content)
 
         note = Note(
             id=note_id,

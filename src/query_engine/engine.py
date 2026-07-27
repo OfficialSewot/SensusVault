@@ -1,6 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 from src.database.manager import DatabaseManager
+from src.embeddings.manager import EmbeddingManager
 from src.models.models import Note
 
 class QueryEngine:
